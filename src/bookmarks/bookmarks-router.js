@@ -3,13 +3,17 @@ const { v4: uuid } = require('uuid');
 const bookmarks = require('../dataStore');
 const logger = require('../logger');
 
+const BookmarksService = require('./bookmarks-service');
+
 const bookmarksRouter = express.Router();
 const bodyParser = express.json();
 
 bookmarksRouter
   .route('/')
   .get((req, res) => {
-    return res.json(bookmarks);
+    BookmarksService.getAllBookmarks(req.app.get('db')).then((data) =>
+      res.json(data)
+    );
   })
   .post(bodyParser, (req, res) => {
     const { title, url, description, rating } = req.body;
@@ -50,17 +54,18 @@ bookmarksRouter
 
 bookmarksRouter
   .route('/:id')
-  .get((req, res) => {
-    const { id } = req.params;
+  .get((req, res, next) => {
+    const id = req.params.id;
 
-    const bookmark = bookmarks.find((bm) => bm.id === id);
-
-    if (!bookmark) {
-      logger.error(`Bookmark with id ${id} not found`);
-      return res.status(404).send(`Bookmark with id ${id} not found`);
-    }
-
-    return res.json(bookmark);
+    BookmarksService.getBookmarkById(req.app.get('db'), id)
+      .then((data) => {
+        if (!data) {
+          logger.error(`Bookmark with id ${id} not found`);
+          return res.status(404).send(`Bookmark with id ${id} not found`);
+        }
+        return res.json(data);
+      })
+      .catch(next);
   })
   .delete((req, res) => {
     const { id } = req.params;

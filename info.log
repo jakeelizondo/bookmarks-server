@@ -6,3 +6,8 @@
 {"message":"Missing required bookmark data","level":"error"}
 {"message":"Bookmark with id af9fc53c-3b3e-4bc5-adae-1fdf92e3afb4 not found","level":"error"}
 {"message":"Bookmark with id af9fc53c-3b3e-4bc5-adae-1fdf92e3afb4 not found","level":"error"}
+{"message":"Attempt to delete bookmark with id 5a00d20e-eeae-4f17-95b5-e0ba2ecf27f5 failed; no such id found","level":"error"}
+{"message":"Attempt to delete bookmark with id 5a00d20e-eeae-4f17-95b5-e0ba2ecf27f5 failed; no such id found","level":"error"}
+{"message":"Unauthorized request to path: /articles","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Bookmark with id 11 not found","level":"error"}
