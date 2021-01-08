@@ -1,7 +1,5 @@
 const express = require('express');
-const { v4: uuid } = require('uuid');
 const xss = require('xss');
-const bookmarks = require('../dataStore');
 const logger = require('../logger');
 
 const BookmarksService = require('./bookmarks-service');
@@ -44,7 +42,7 @@ bookmarksRouter
 
     if (!rating || rating < 1 || rating > 5) {
       logger.error('Rating between 1 and 5 is required');
-      return res.status(400).send('Missing Rating');
+      return res.status(400).send('Rating between 1 and 5 is required');
     }
 
     const bookmark = {
@@ -72,7 +70,9 @@ bookmarksRouter
       .then((data) => {
         if (!data) {
           logger.error(`Bookmark with id ${id} not found`);
-          return res.status(404).send(`Bookmark with id ${id} not found`);
+          return res
+            .status(404)
+            .json({ error: { message: `Bookmark with id ${id} not found` } });
         }
         return res.json(serializeBookmark(data));
       })
