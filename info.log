@@ -73,3 +73,21 @@
 {"message":"Bookmark with id 6 not found","level":"error"}
 {"message":"Bookmark with id 12345 not found","level":"error"}
 {"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Bookmark with id 12345 not found","level":"error"}
+{"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Bookmark with id 12345 not found","level":"error"}
+{"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Bookmark with id 12345 not found","level":"error"}
+{"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Bookmark with id 12345 not found","level":"error"}
+{"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Bookmark with id 12345 not found","level":"error"}
+{"message":"Bookmark with id 6 not found","level":"error"}
+{"message":"Title is required","level":"error"}
+{"message":"URL is required","level":"error"}
+{"message":"Description is required","level":"error"}
+{"message":"Rating between 1 and 5 is required","level":"error"}

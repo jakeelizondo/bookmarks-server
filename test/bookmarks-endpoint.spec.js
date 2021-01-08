@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const knex = require('knex');
 const supertest = require('supertest');
 const app = require('../src/app');
@@ -124,7 +125,6 @@ describe('Bookmarks Endpoints', function () {
 
   describe('POST /bookmarks', () => {
     it('creates a new bookmark, responding with 201 and the new bookmark', function () {
-      this.retries(3);
       const newBookmark = {
         title: 'title test',
         url: 'url8.com test',
@@ -142,7 +142,29 @@ describe('Bookmarks Endpoints', function () {
           expect(res.body.url).to.equal(newBookmark.url);
           expect(res.body.description).to.equal(newBookmark.description);
           expect(res.body.rating).to.equal(newBookmark.rating);
+          expect(res.body).to.have.property('id');
         });
+    });
+
+    const requiredFields = ['title', 'url', 'description', 'rating'];
+
+    requiredFields.forEach((field) => {
+      const newBookmark = {
+        title: 'title test',
+        url: 'url8.com test',
+        description: 'long description test',
+        rating: 5,
+      };
+
+      it(`responds with 400 and an error if the field ${field} is missing`, () => {
+        delete newBookmark[field];
+
+        return supertest(app)
+          .post('/bookmarks')
+          .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+          .send(newBookmark)
+          .expect(400);
+      });
     });
   });
 });
