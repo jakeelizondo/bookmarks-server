@@ -11,3 +11,16 @@
 {"message":"Unauthorized request to path: /articles","level":"error"}
 {"message":"Unauthorized request to path: /","level":"error"}
 {"message":"Bookmark with id 11 not found","level":"error"}
+{"message":"Bookmark with id 1 not found","level":"error"}
+{"message":"Bookmark with id 2 not found","level":"error"}
+{"message":"Bookmark with id 2 not found","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks/5","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks/5","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks/","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
+{"message":"Unauthorized request to path: /","level":"error"}
