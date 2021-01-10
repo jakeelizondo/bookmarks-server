@@ -21,11 +21,11 @@ describe('Bookmarks Endpoints', function () {
 
   afterEach('cleanup after test', () => db('bookmarks').truncate());
 
-  describe('GET /bookmarks', () => {
+  describe('GET /api/bookmarks', () => {
     context('given that there are no bookmarks in the table', () => {
       it('should return 200 and an empty array', () => {
         return supertest(app)
-          .get('/bookmarks')
+          .get('/api/bookmarks')
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(200, []);
       });
@@ -40,19 +40,19 @@ describe('Bookmarks Endpoints', function () {
 
       it('responds with 200 and all of the bookmarks', () => {
         return supertest(app)
-          .get('/bookmarks')
+          .get('/api/bookmarks')
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(200, testBookmarks);
       });
     });
   });
 
-  describe('GET /bookmarks/:id', () => {
+  describe('GET /api/bookmarks/:id', () => {
     context('given that the bookmark does not exist', () => {
       it('responds with 404', () => {
         const bookmarkId = 12345;
         return supertest(app)
-          .get(`/bookmarks/${bookmarkId}`)
+          .get(`/api/bookmarks/${bookmarkId}`)
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(404, {
             error: { message: `Bookmark with id ${bookmarkId} not found` },
@@ -71,19 +71,19 @@ describe('Bookmarks Endpoints', function () {
         const bookmarkId = 6;
         const expectedBookmark = testBookmarks[bookmarkId - 1];
         return supertest(app)
-          .get(`/bookmarks/${bookmarkId}`)
+          .get(`/api/bookmarks/${bookmarkId}`)
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(200, expectedBookmark);
       });
     });
   });
 
-  describe('DELETE /bookmarks/:id', () => {
+  describe('DELETE /api/bookmarks/:id', () => {
     context('given that the bookmark does not exist', () => {
       it('responds with 404', () => {
         const bookmarkId = 12345;
         return supertest(app)
-          .delete(`/bookmarks/${bookmarkId}`)
+          .delete(`/api/bookmarks/${bookmarkId}`)
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(404, {
             error: { message: `bookmark with id ${bookmarkId} not found` },
@@ -104,18 +104,18 @@ describe('Bookmarks Endpoints', function () {
         );
 
         return supertest(app)
-          .delete(`/bookmarks/${idToDrop}`)
+          .delete(`/api/bookmarks/${idToDrop}`)
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .expect(204)
           .then((response) => {
             return supertest(app)
-              .get(`/bookmarks/${idToDrop}`)
+              .get(`/api/bookmarks/${idToDrop}`)
               .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
               .expect(404);
           })
           .then((response) => {
             return supertest(app)
-              .get('/bookmarks')
+              .get('/api/bookmarks')
               .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
               .expect(expectedBookmarks);
           });
@@ -123,7 +123,7 @@ describe('Bookmarks Endpoints', function () {
     });
   });
 
-  describe('POST /bookmarks', () => {
+  describe('POST /api/bookmarks', () => {
     it('creates a new bookmark, responding with 201 and the new bookmark', function () {
       const newBookmark = {
         title: 'title test',
@@ -133,7 +133,7 @@ describe('Bookmarks Endpoints', function () {
       };
 
       return supertest(app)
-        .post('/bookmarks')
+        .post('/api/bookmarks')
         .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
         .send(newBookmark)
         .expect(201)
@@ -160,10 +160,101 @@ describe('Bookmarks Endpoints', function () {
         delete newBookmark[field];
 
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
           .send(newBookmark)
           .expect(400);
+      });
+    });
+  });
+
+  describe.only('PATCH /api/bookmarks/:id', () => {
+    context('given no bookmarks', () => {
+      it('responds with 404', () => {
+        const bookmarkId = 12345;
+        return supertest(app)
+          .patch(`/api/bookmarks/${bookmarkId}`)
+          .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+          .expect(404, {
+            error: { message: `Bookmark with id ${bookmarkId} not found` },
+          });
+      });
+    });
+
+    context('given that there are bookmarks', () => {
+      const testBookmarks = makeBookmarksArray();
+
+      beforeEach('insert bookmarks into table', () => {
+        return db.into('bookmarks').insert(testBookmarks);
+      });
+
+      it('responds with a 204 and updates the bookmark when patch request succeeds', () => {
+        const bookmarkIdToUpdate = 3;
+        const newBookmarkDetails = {
+          title: 'updated title',
+          url: 'updated url',
+          description: 'updated description',
+          rating: 5,
+        };
+
+        const expectedBookmark = {
+          id: bookmarkIdToUpdate,
+          ...newBookmarkDetails,
+        };
+
+        return supertest(app)
+          .patch(`/api/bookmarks/${bookmarkIdToUpdate}`)
+          .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+          .send(newBookmarkDetails)
+          .expect(204)
+          .then((res) => {
+            return supertest(app)
+              .get(`/api/bookmarks/${bookmarkIdToUpdate}`)
+              .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+              .expect(expectedBookmark);
+          });
+      });
+
+      it('responds with a 400 and error message when no values are supplied', () => {
+        const bookmarkIdToUpdate = 3;
+        const newBookmarkDetails = {
+          badField: 'bad info, not what is expected',
+        };
+
+        return supertest(app)
+          .patch(`/api/bookmarks/${bookmarkIdToUpdate}`)
+          .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+          .send(newBookmarkDetails)
+          .expect(400, {
+            error: {
+              message:
+                "Request body must contain either 'title' 'url' 'rating' or 'description'",
+            },
+          });
+      });
+
+      it('responds with a 204 when updating only a specific field', () => {
+        const bookmarkIdToUpdate = 2;
+        const newBookmarkDetails = {
+          title: 'updated title',
+        };
+
+        const expectedBookmark = {
+          ...testBookmarks[bookmarkIdToUpdate - 1],
+          ...newBookmarkDetails,
+        };
+
+        return supertest(app)
+          .patch(`/api/bookmarks/${bookmarkIdToUpdate}`)
+          .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+          .send(newBookmarkDetails)
+          .expect(204)
+          .then((res) => {
+            return supertest(app)
+              .get(`/api/bookmarks/${bookmarkIdToUpdate}`)
+              .set('Authorization', `Bearer ${process.env.REACT_APP_API_KEY}`)
+              .expect(expectedBookmark);
+          });
       });
     });
   });

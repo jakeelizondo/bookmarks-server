@@ -45,6 +45,8 @@ bookmarksRouter
       return res.status(400).send('Rating between 1 and 5 is required');
     }
 
+    // TODO refactor the above into a loop, then update test to be more specific
+
     const bookmark = {
       title,
       url,
@@ -63,6 +65,19 @@ bookmarksRouter
 
 bookmarksRouter
   .route('/:id')
+  .all((req, res, next) => {
+    BookmarksService.getBookmarkById(req.app.get('db'), req.params.id)
+      .then((bookmark) => {
+        if (!bookmark) {
+          return res.status(404).json({
+            error: { message: `Bookmark with id ${req.params.id} not found` },
+          });
+        }
+        res.bookmark = bookmark;
+        next();
+      })
+      .catch(next);
+  })
   .get((req, res, next) => {
     const id = req.params.id;
 
@@ -89,6 +104,32 @@ bookmarksRouter
             .json({ error: { message: `bookmark with id ${id} not found` } });
         }
         return res.status(204).end();
+      })
+      .catch(next);
+  })
+  .patch((req, res, next) => {
+    const { id } = req.params;
+    const { title, url, description, rating } = req.body;
+    const updatedBookmark = { title, url, description, rating };
+
+    const numberOfValuesInBookmark = Object.values(updatedBookmark).filter(
+      Boolean
+    ).length;
+
+    if (numberOfValuesInBookmark === 0) {
+      return res
+        .status(400)
+        .json({
+          error: {
+            message:
+              "Request body must contain either 'title' 'url' 'rating' or 'description'",
+          },
+        });
+    }
+
+    BookmarksService.updateBookmark(req.app.get('db'), id, updatedBookmark)
+      .then((numRowsAffected) => {
+        res.status(204).end();
       })
       .catch(next);
   });
